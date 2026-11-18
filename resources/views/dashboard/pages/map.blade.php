@@ -69,6 +69,96 @@
             flex: 1;
             font-size: 13px;
         }
+
+        /* =========================================
+                       ARCGIS POPUP - MAIN CONTAINER
+                    ========================================= */
+
+        .esri-popup__main-container {
+            min-width: 300px !important;
+            max-width: 400px !important;
+            max-height: 400px !important;
+            background: #ffffff !important;
+        }
+
+        /* =========================================
+                       POPUP CONTENT VISIBILITY
+                    ========================================= */
+
+        .esri-popup .esri-features__content-feature,
+        .esri-popup .esri-features__heading,
+        .esri-popup .esri-feature-content,
+        .esri-popup .esri-feature__content-node,
+        .esri-popup .esri-features__container {
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        /* =========================================
+                       POPUP TEXT
+                    ========================================= */
+
+        .esri-popup .esri-features__heading {
+            color: #323232 !important;
+            font-size: 16px !important;
+            font-weight: 700 !important;
+        }
+
+        .esri-popup .esri-feature-content,
+        .esri-popup .esri-feature-content * {
+            color: #323232 !important;
+            font-size: 14px !important;
+            line-height: 1.6 !important;
+        }
+
+        /* =========================================
+                       POPUP BACKGROUND
+                    ========================================= */
+
+        .esri-popup .esri-features__content-feature,
+        .esri-popup .esri-features__container {
+            background: #ffffff !important;
+        }
+
+
+        .survey-popup {
+            padding: 12px;
+            color: #323232;
+            font-size: 13px;
+        }
+
+        .survey-popup-section {
+            margin-bottom: 18px;
+        }
+
+        .survey-popup-section h4 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1769aa !important;
+            border-bottom: 1px solid #eeeeee;
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+        }
+
+        .survey-popup-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 7px 0;
+            border-bottom: 1px solid #f1f1f1;
+        }
+
+        .survey-popup-row span {
+            color: #777777 !important;
+            flex: 0 0 42%;
+        }
+
+        .survey-popup-row strong {
+            color: #323232 !important;
+            font-weight: 600;
+            text-align: right;
+            overflow-wrap: anywhere;
+        }
     </style>
     <main class="main users chart-page" id="skip-target">
         <div class="container">
@@ -105,8 +195,124 @@
             zoom: 11
         });
 
+        view.popupEnabled = true;
+
+        // view.on("click", async function(event) {
+
+        //     console.log("MAP DIKLIK:", event.mapPoint);
+
+        //     const hit = await view.hitTest(event);
+
+        //     console.log("HASIL HIT TEST:", hit.results);
+
+        //     const graphicResult = hit.results.find(result =>
+        //         result.graphic &&
+        //         result.graphic.attributes &&
+        //         result.graphic.attributes.objectid
+        //     );
+
+        //     if (!graphicResult) {
+        //         console.warn("Graphic Survey123 tidak ditemukan pada titik ini.");
+        //         return;
+        //     }
+
+        //     const graphic = graphicResult.graphic;
+
+        //     console.log("GRAPHIC TERPILIH:", graphic);
+        //     console.log("ATRIBUT:", graphic.attributes);
+        //     console.log("POPUP TEMPLATE:", graphic.popupTemplate);
+        //     view.popup.title = "POPUP TEST";
+
+        //     view.popup.content =
+        //         `
+    //         <div style="padding: 15px; color: #222;">
+    //             <h3>Data Survey Berhasil!</h3>
+    //             <p>Object ID: ${graphic.attributes.objectid}</p>
+    //             <p>Jenis Bangunan: ${graphic.attributes.jenis_bangunan}</p>
+    //             <p>Fungsi Bangunan: ${graphic.attributes.fungsi_bangunan}</p>
+    //             <p>Kondisi Bangunan: ${graphic.attributes.kondisi_bangunan}</p>
+    //         </div>
+    //     `;
+
+        //     view.popup.open({
+        //         location: graphic.geometry
+        //     });
+        //     console.log("POPUP DIBUKA:", view.popup.visible);
+
+        // });
+        view.on("click", async function(event) {
+
+            const hit = await view.hitTest(event);
+
+            const graphicResult = hit.results.find(result =>
+                result.graphic &&
+                result.graphic.attributes &&
+                result.graphic.attributes.objectid
+            );
+
+            if (!graphicResult) {
+                console.warn("Graphic tidak ditemukan.");
+                return;
+            }
+
+            const graphic = graphicResult.graphic;
+
+            console.log("GRAPHIC TERPILIH:", graphic);
+            console.log("ATRIBUT:", graphic.attributes);
+
+            // Buka popup
+            view.popup.open({
+                features: [graphic],
+                location: graphic.geometry
+            });
+
+            console.log("POPUP DIBUKA:", view.popup.visible);
+
+            // Periksa DOM setelah popup dibuka
+            setTimeout(() => {
+
+                const popup = document.querySelector(".esri-popup");
+
+                console.log("POPUP OUTER HTML:", popup?.outerHTML);
+
+                console.log("POPUP INNER HTML:", popup?.innerHTML);
+
+                console.log("SHADOW ROOT:", popup?.shadowRoot);
+
+                console.log(
+                    "SHADOW HTML:",
+                    popup?.shadowRoot?.innerHTML
+                );
+
+                console.log(
+                    "SEMUA ELEMEN DI POPUP:",
+                    popup?.querySelectorAll("*")
+                );
+                console.log("POPUP VISIBLE:", view.popup.visible);
+
+                console.log("POPUP TITLE:", view.popup.title);
+
+                console.log("POPUP CONTENT:", view.popup.content);
+
+                console.log("POPUP SELECTED FEATURE:", view.popup.selectedFeature);
+
+                console.log("POPUP FEATURES:", view.popup.features);
+                // console.log("CONTENT STYLE:", content ? {
+                //     display: getComputedStyle(content).display,
+                //     visibility: getComputedStyle(content).visibility,
+                //     opacity: getComputedStyle(content).opacity,
+                //     color: getComputedStyle(content).color,
+                //     fontSize: getComputedStyle(content).fontSize,
+                //     height: content.getBoundingClientRect().height
+                // } : "ELEMENT TIDAK DITEMUKAN");
+
+            }, 300);
+
+        });
         const surveyLayer = new GraphicsLayer({
-            title: "Survey123 - Titik Survey"
+            title: "Survey123 - Titik Survey",
+            visible: true,
+            popupEnabled: true
         });
 
         map.add(surveyLayer);
@@ -139,50 +345,144 @@
                         latitude: geometry.y
                     };
 
-                    const graphic = new Graphic({
-                        geometry: point,
 
-                        // WAJIB: masukkan attributes
-                        attributes: {
-                            objectid: attributes.objectid,
-                            globalid: attributes.globalid,
-                            tanggal: attributes.tanggal,
-                            luas_baku: attributes.luas_baku,
-                            luas_potensial: attributes.luas_potensial,
+                    // ==========================================
+                    // FORMAT DATA SURVEY123
+                    // ==========================================
+
+                    const attr = feature.attributes;
+
+                    function formatTanggal(timestamp) {
+                        if (!timestamp) return "-";
+
+                        return new Date(timestamp).toLocaleDateString("id-ID", {
+                            day: "2-digit",
+                            month: "long",
+                            year: "numeric"
+                        });
+                    }
+
+                    function formatWaktu(timestamp) {
+                        if (!timestamp) return "-";
+
+                        return new Date(timestamp).toLocaleString("id-ID", {
+                            day: "2-digit",
+                            month: "long",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit"
+                        });
+                    }
+
+                    function escapeHTML(value) {
+                        return String(value ?? "-").replace(/[&<>"']/g, char => ({
+                            "&": "&amp;",
+                            "<": "&lt;",
+                            ">": "&gt;",
+                            '"': "&quot;",
+                            "'": "&#039;"
+                        })[char]);
+                    }
+
+                    // ==========================================
+                    // POPUP SURVEY123
+                    // ==========================================
+
+                    const popupContent = `
+    <div class="survey-popup">
+
+        <div class="survey-popup-section">
+            <h4>Informasi Bangunan</h4>
+
+            <div class="survey-popup-row">
+                <span>ID Survey</span>
+                <strong>${escapeHTML(attr.objectid)}</strong>
+            </div>
+
+            <div class="survey-popup-row">
+                <span>Jenis Bangunan</span>
+                <strong>${escapeHTML(attr.jenis_bangunan)}</strong>
+            </div>
+
+            <div class="survey-popup-row">
+                <span>Tipe Bangunan</span>
+                <strong>${escapeHTML(attr.tipe_bangunan)}</strong>
+            </div>
+
+            <div class="survey-popup-row">
+                <span>Fungsi Bangunan</span>
+                <strong>${escapeHTML(attr.fungsi_bangunan)}</strong>
+            </div>
+
+            <div class="survey-popup-row">
+                <span>Kondisi Bangunan</span>
+                <strong>${escapeHTML(attr.kondisi_bangunan)}</strong>
+            </div>
+
+            <div class="survey-popup-row">
+                <span>Tanggal Survei</span>
+                <strong>${formatTanggal(attr.tanggal_survei)}</strong>
+            </div>
+        </div>
+
+        <div class="survey-popup-section">
+            <h4>Informasi Administrasi</h4>
+
+            <div class="survey-popup-row">
+                <span>Global ID</span>
+                <strong>${escapeHTML(attr.globalid)}</strong>
+            </div>
+
+            <div class="survey-popup-row">
+                <span>Dibuat Oleh</span>
+                <strong>${escapeHTML(attr.Creator)}</strong>
+            </div>
+
+            <div class="survey-popup-row">
+                <span>Waktu Pembuatan</span>
+                <strong>${formatWaktu(attr.CreationDate)}</strong>
+            </div>
+
+            <div class="survey-popup-row">
+                <span>Diedit Oleh</span>
+                <strong>${escapeHTML(attr.Editor)}</strong>
+            </div>
+
+            <div class="survey-popup-row">
+                <span>Waktu Perubahan</span>
+                <strong>${formatWaktu(attr.EditDate)}</strong>
+            </div>
+        </div>
+
+    </div>
+`;
+
+                    // ==========================================
+                    // CREATE GRAPHIC
+                    // ==========================================
+
+                    const graphic = new Graphic({
+                        geometry: {
+                            type: "point",
+                            longitude: feature.geometry.x,
+                            latitude: feature.geometry.y
                         },
+
+                        attributes: attr,
 
                         symbol: {
                             type: "simple-marker",
-                            color: [0, 180, 200],
+                            color: "#00bcd4",
+                            size: 12,
                             outline: {
-                                color: [255, 255, 255],
-                                width: 1
+                                color: "#ffffff",
+                                width: 2
                             }
                         },
 
                         popupTemplate: {
-                            title: "Data Survey",
-
-                            content: [{
-                                type: "fields",
-
-                                fieldInfos: [{
-                                        fieldName: "luas_baku",
-                                        label: "LUAS BAKU"
-                                    },
-                                    {
-                                        fieldName: "luas_potensial",
-                                        label: "LUAS POTENSIAL"
-                                    },
-                                    {
-                                        fieldName: "tanggal",
-                                        label: "TANGGAL",
-                                        format: {
-                                            dateFormat: "short-date"
-                                        }
-                                    }
-                                ]
-                            }]
+                            title: "Detail Survei Bangunan",
+                            content: popupContent
                         }
                     });
 
@@ -225,7 +525,7 @@
                 container: "viewDiv",
                 map: map,
                 center: [112.3121, 0.6183],
-                zoom: 12
+                zoom: 14
             });
 
             const layerObjects = [];
