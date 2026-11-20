@@ -60,3 +60,19 @@ Route::get(
     '/arcgis/features/survey-points/{objectId}/attachments',
     [DashboardController::class, 'surveyAttachments']
 );
+
+Route::get(
+    '/arcgis/features/survey-points/{objectId}/attachments',
+    [DashboardController::class, 'surveyAttachments']
+);
+
+Route::get(
+    '/arcgis/features/survey-points/{objectId}/attachments/{attachmentId}/image',
+    [DashboardController::class, 'surveyAttachmentImage']
+);
+
+
+// survey
+Route::get('/survey', [DashboardController::class, 'indexsurvey'])->name('HalamanISurvey');
+Route::get('/tambahsurvey', [DashboardController::class, 'haltambahsurvey'])->name('HalamanTambahSurvey');
+Route::post('/storesurvey', [DashboardController::class, 'storesurvey'])->name('SimpanSurvey');

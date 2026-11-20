@@ -46,6 +46,673 @@ h1 {
   margin: 0.67em 0;
 }
 
+/* toogle */
+/* Transisi sidebar */
+
+
+.page-flex {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+.sidebar {
+    position: relative;
+    z-index: 1100;
+    display: flex;
+    flex-direction: column;
+
+    width: 260px;
+    min-width: 260px;
+    height: 100vh;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    transition:
+        width .25s ease,
+        min-width .25s ease,
+        transform .25s ease;
+}
+
+.main-wrapper {
+    flex: 1;
+    min-width: 0;
+    width: calc(100% - 260px);
+
+    transition: width .25s ease;
+}
+
+
+/* =====================================================
+   SIDEBAR HEADER
+===================================================== */
+
+.sidebar-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.logo-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.logo-text {
+    display: flex;
+    flex-direction: column;
+    white-space: nowrap;
+}
+
+.sidebar-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+
+/* =====================================================
+   SIDEBAR MENU
+===================================================== */
+
+.sidebar-body-menu li a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 44px;
+    white-space: nowrap;
+}
+
+.sidebar-body-menu li a .icon,
+.sidebar-body-menu li a svg {
+    width: 18px;
+    min-width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.menu-text {
+    white-space: nowrap;
+}
+
+.sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sidebar-user-img {
+    flex-shrink: 0;
+}
+
+.sidebar-user-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    white-space: nowrap;
+}
+
+
+/* =====================================================
+   DESKTOP COLLAPSED
+   Hanya menampilkan ikon
+===================================================== */
+
+@media (min-width: 769px) {
+
+    .page-flex.sidebar-collapsed .sidebar {
+        width: 75px;
+        min-width: 75px;
+    }
+
+    .page-flex.sidebar-collapsed .main-wrapper {
+        width: calc(100% - 75px);
+    }
+
+    /* Sembunyikan teks */
+    .page-flex.sidebar-collapsed .logo-text,
+    .page-flex.sidebar-collapsed .menu-text,
+    .page-flex.sidebar-collapsed .system-menu__title,
+    .page-flex.sidebar-collapsed .sidebar-user-info {
+        display: none !important;
+    }
+
+    /* Header */
+    .page-flex.sidebar-collapsed .sidebar-head {
+        flex-direction: column;
+        justify-content: center;
+        gap: 12px;
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+
+    .page-flex.sidebar-collapsed .logo-wrapper {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .page-flex.sidebar-collapsed .sidebar-toggle {
+        margin: 0 auto;
+    }
+
+    /* Menu ikon rata tengah */
+    .page-flex.sidebar-collapsed .sidebar-body-menu li a {
+        justify-content: center;
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+
+    .page-flex.sidebar-collapsed .sidebar-body-menu li a .icon,
+    .page-flex.sidebar-collapsed .sidebar-body-menu li a svg {
+        margin: 0 !important;
+    }
+
+    /* Profil hanya foto */
+    .page-flex.sidebar-collapsed .sidebar-user {
+        justify-content: center;
+        padding: 10px 5px;
+    }
+
+    .page-flex.sidebar-collapsed .sidebar-footer {
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+
+    /* Hamburger mobile tidak ditampilkan */
+    .mobile-sidebar-toggle {
+        display: none !important;
+    }
+}
+
+
+/* =====================================================
+   TOMBOL HAMBURGER MOBILE
+===================================================== */
+
+.mobile-sidebar-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    width: 42px;
+    height: 42px;
+
+    padding: 0;
+
+    color: #334155;
+    background: transparent;
+
+    border: 1px solid #dce3ed;
+    border-radius: 7px;
+
+    cursor: pointer;
+}
+
+.mobile-sidebar-toggle:hover {
+    background: #f1f5f9;
+}
+
+
+
+/* =========================================
+   SURVEY FORM - FINAL RESPONSIVE STYLE
+========================================= */
+
+.survey-wrapper {
+    width: 100%;
+    min-height: auto;
+    padding: 15px 12px 45px;
+    background: #f3f7fc;
+    box-sizing: border-box;
+      margin-bottom: 30px;
+       position: relative;
+}
+
+.survey-card {
+    width: 100%;
+    background: #fff;
+    border: 1px solid #d8e4f2;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 30px;
+}
+
+
+.survey-header {
+    background-color: rgb(0, 97, 247) !important;
+    color: #fff;
+    padding: 14px 20px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.survey-description {
+    padding: 13px 20px;
+    border-bottom: 1px solid #dce5f0;
+    font-size: 12px;
+    color: #666;
+}
+
+.survey-content {
+    padding: 16px;
+}
+
+.survey-section {
+    width: 100%;
+    height: auto;
+    position: relative;
+    background: #fff;
+    border: 1px solid #cbdcf2;
+    border-radius: 7px;
+    padding: 18px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0, 97, 247, 0.05);
+}
+
+/* LABEL */
+.field-label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    color: #343a40;
+}
+
+.required {
+    color: #dc3545;
+}
+
+/* SEMUA INPUT FORM */
+#surveyForm input[type="text"],
+#surveyForm input[type="date"],
+#surveyForm input[type="number"],
+#surveyForm input[type="email"],
+#surveyForm select,
+#surveyForm textarea,
+#surveyForm .survey-control {
+    display: block;
+    width: 100%;
+    min-height: 40px;
+    padding: 8px 11px;
+    border: 1px solid #b9cce3 !important;
+    border-radius: 5px !important;
+    background-color: #fff !important;
+    color: #343a40;
+    font-size: 13px;
+    outline: none;
+    box-shadow: none;
+    box-sizing: border-box;
+}
+
+#surveyForm input[type="text"]:focus,
+#surveyForm input[type="date"]:focus,
+#surveyForm input[type="number"]:focus,
+#surveyForm select:focus,
+#surveyForm textarea:focus {
+    border-color: rgb(0, 97, 247) !important;
+    box-shadow: 0 0 0 3px rgba(0, 97, 247, 0.10) !important;
+}
+
+/* RADIO */
+.radio-option {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    width: 100%;
+    border: 1px solid #cbdcf2;
+    border-radius: 5px;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.radio-option input[type="radio"] {
+    width: 17px;
+    height: 17px;
+    margin: 0 10px 0 0;
+    accent-color: rgb(0, 97, 247);
+}
+
+/* MAP */
+.map-container {
+    width: 100%;
+    height: 290px;
+    border: 1px solid #b9cce3;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.arcgis-map {
+    width: 100%;
+    height: 235px;
+}
+
+.coordinate-inputs {
+    display: flex;
+    gap: 10px;
+    padding: 7px;
+    border-top: 1px solid #dce5f0;
+    background: #fff;
+}
+
+.coordinate-group {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+}
+
+.coordinate-group input {
+    width: 100%;
+    min-width: 0;
+    height: 30px;
+    border: 1px solid #b9cce3 !important;
+    border-radius: 4px;
+    padding: 4px 6px;
+    font-size: 11px;
+    background: #fff;
+}
+
+.map-note {
+    font-size: 11px;
+    color: #8993a1;
+    margin-top: 8px;
+}
+
+/* DOKUMENTASI */
+.upload-area {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.upload-label {
+    flex: 1;
+    border: 1px dashed rgb(0, 97, 247);
+    color: rgb(0, 97, 247);
+    background: #f7faff;
+    padding: 13px 5px;
+    text-align: center;
+    font-size: 11px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.camera-button {
+    width: 42px;
+    height: 42px;
+    border: 1px solid rgb(0, 97, 247);
+    color: rgb(0, 97, 247);
+    background: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.photo-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.photo-preview img {
+    width: 75px;
+    height: 75px;
+    object-fit: cover;
+    border: 1px solid #d5dfeb;
+    border-radius: 5px;
+}
+
+/* TANDA TANGAN */
+.signature-wrapper {
+    position: relative;
+    height: 250px;
+    border: 1px solid #b9cce3;
+    border-radius: 5px;
+    background: #fff;
+    overflow: hidden;
+}
+
+#signatureCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    touch-action: none;
+    cursor: crosshair;
+}
+
+.signature-guide {
+    position: absolute;
+    bottom: 25px;
+    left: 15px;
+    right: 15px;
+    border-top: 1px dashed #ccc;
+    text-align: center;
+    padding-top: 8px;
+    color: #aaa;
+    font-size: 11px;
+    pointer-events: none;
+}
+
+.signature-clear {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    border: 1px solid #d5dfeb;
+    background: white;
+    color: #777;
+    padding: 5px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* BUTTON */
+.submit-wrapper {
+    text-align: center;
+    margin: 20px 0 10px;
+}
+
+.btn-survey-submit {
+    background-color: rgb(0, 97, 247) !important;
+    color: #fff;
+    border: none;
+    padding: 11px 35px;
+    cursor: pointer;
+    font-size: 13px;
+    border-radius: 5px;
+}
+
+.btn-survey-submit:hover {
+    background-color: #0052cc !important;
+}
+/* Mencegah konten menempel pada footer */
+#app,
+.main-wrapper,
+.main-content,
+.page-content {
+    min-height: 0;
+}
+
+
+
+/* MOBILE */
+@media (max-width: 767px) {
+
+
+  /* tooggler */
+       .page-flex {
+        display: block;
+        width: 100%;
+    }
+
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+
+        width: 260px;
+        min-width: 260px;
+        max-width: 85vw;
+        height: 100dvh;
+
+        background: #fff;
+
+        transform: translateX(0);
+        transition: transform .25s ease;
+
+        overflow-y: auto;
+        box-shadow: 2px 0 15px rgba(0, 0, 0, .12);
+    }
+
+    /* Sidebar disembunyikan */
+    .page-flex.sidebar-collapsed .sidebar {
+        width: 260px;
+        min-width: 260px;
+        transform: translateX(-105%);
+    }
+
+    .main-wrapper {
+        width: 100%;
+        min-height: 100vh;
+        margin-left: 0;
+    }
+
+    /* Kembalikan semua teks saat mobile sidebar terbuka */
+    .page-flex .logo-text,
+    .page-flex .menu-text,
+    .page-flex .system-menu__title,
+    .page-flex .sidebar-user-info {
+        display: initial;
+    }
+
+    .page-flex .logo-text {
+        display: flex;
+    }
+
+    .page-flex .sidebar-user-info {
+        display: flex;
+    }
+
+    .page-flex .sidebar-body-menu li a {
+        justify-content: flex-start;
+    }
+
+    /* Tombol hamburger tampil */
+    .mobile-sidebar-toggle {
+        display: inline-flex;
+    }
+
+    /* Overlay */
+    .page-flex:not(.sidebar-collapsed)::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+
+        z-index: 1090;
+
+        background: rgba(15, 23, 42, .45);
+    }
+
+    .sidebar {
+        z-index: 1100;
+    }
+
+    /* Toggler di dalam sidebar tetap ada */
+    .sidebar-toggle {
+        display: inline-flex;
+    }
+  /* end toggler */
+        .survey-wrapper {
+        margin-bottom: 20px;
+        padding-bottom: 35px;
+    }
+
+    .survey-card {
+        margin-bottom: 20px;
+    }
+
+    .survey-header {
+        padding: 13px 15px;
+    }
+
+    .survey-description {
+        padding: 12px 15px;
+    }
+
+    .survey-content {
+        padding: 9px 7px;
+    }
+
+    .survey-section {
+        padding: 14px 11px;
+        margin-bottom: 12px;
+    }
+
+    .map-container {
+        height: 270px;
+    }
+
+    .arcgis-map {
+        height: 215px;
+    }
+
+    .coordinate-inputs {
+        gap: 5px;
+        padding: 6px 4px;
+    }
+
+    .coordinate-group {
+        font-size: 10px;
+        gap: 3px;
+    }
+
+    .coordinate-group input {
+        font-size: 10px;
+    }
+
+    .signature-wrapper {
+        height: 220px;
+    }
+
+    .btn-survey-submit {
+        width: 100%;
+        min-height: 42px;
+    }
+}
+@media (max-width: 480px) {
+
+    .sidebar {
+        width: 250px;
+        min-width: 250px;
+    }
+
+    .page-flex.sidebar-collapsed .sidebar {
+        width: 250px;
+        min-width: 250px;
+    }
+
+    .mobile-sidebar-toggle {
+        width: 38px;
+        height: 38px;
+    }
+
+}
+
+
+
+
+
+/* akhir survey */
 /* Grouping content
    ========================================================================== */
 

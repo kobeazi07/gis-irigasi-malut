@@ -71,8 +71,8 @@
         }
 
         /* =========================================
-                       ARCGIS POPUP - MAIN CONTAINER
-                    ========================================= */
+                                                                           ARCGIS POPUP - MAIN CONTAINER
+                                                                        ========================================= */
 
         .esri-popup__main-container {
             min-width: 300px !important;
@@ -82,8 +82,8 @@
         }
 
         /* =========================================
-                       POPUP CONTENT VISIBILITY
-                    ========================================= */
+                                                                           POPUP CONTENT VISIBILITY
+                                                                        ========================================= */
 
         .esri-popup .esri-features__content-feature,
         .esri-popup .esri-features__heading,
@@ -95,8 +95,8 @@
         }
 
         /* =========================================
-                       POPUP TEXT
-                    ========================================= */
+                                                                           POPUP TEXT
+                                                                        ========================================= */
 
         .esri-popup .esri-features__heading {
             color: #323232 !important;
@@ -112,8 +112,8 @@
         }
 
         /* =========================================
-                       POPUP BACKGROUND
-                    ========================================= */
+                                                                           POPUP BACKGROUND
+                                                                        ========================================= */
 
         .esri-popup .esri-features__content-feature,
         .esri-popup .esri-features__container {
@@ -158,6 +158,48 @@
             font-weight: 600;
             text-align: right;
             overflow-wrap: anywhere;
+        }
+
+
+        /* GALERI FOTO SURVEY123 */
+
+        .survey-photo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .survey-photo-item {
+            min-width: 0;
+            overflow: hidden;
+            border: 1px solid #eeeeee;
+            border-radius: 8px;
+            background: #ffffff;
+        }
+
+        .survey-photo-item img {
+            display: block;
+            width: 100%;
+            height: 125px;
+            object-fit: cover;
+            border-radius: 7px;
+            cursor: pointer;
+        }
+
+        .survey-photo-name {
+            padding: 7px;
+            font-size: 11px;
+            color: #555555 !important;
+            overflow-wrap: anywhere;
+        }
+
+        .survey-no-photo {
+            padding: 15px;
+            text-align: center;
+            color: #777777 !important;
+            background: #f5f5f5;
+            border-radius: 8px;
         }
     </style>
     <main class="main users chart-page" id="skip-target">
@@ -255,10 +297,66 @@
                 return;
             }
 
-            const graphic = graphicResult.graphic;
 
-            console.log("GRAPHIC TERPILIH:", graphic);
-            console.log("ATRIBUT:", graphic.attributes);
+            const graphic = graphicResult.graphic;
+            const attr = graphic.attributes;
+
+            console.log("OBJECTID:", attr.objectid);
+
+            // Ambil foto berdasarkan OBJECTID
+            const photoHTML = await getSurveyPhotos(attr.objectid);
+
+            // Buat konten popup
+            const popupHTML =
+                `
+                    <div class="survey-popup">
+
+                        <h4>Informasi Bangunan</h4>
+
+                        <div class="survey-popup-row">
+                            <span>Jenis Bangunan</span>
+                            <strong>${attr.jenis_bangunan ?? "-"}</strong>
+                        </div>
+
+                        <div class="survey-popup-row">
+                            <span>Tipe Bangunan</span>
+                            <strong>${attr.tipe_bangunan ?? "-"}</strong>
+                        </div>
+
+                        <div class="survey-popup-row">
+                            <span>Fungsi Bangunan</span>
+                            <strong>${attr.fungsi_bangunan ?? "-"}</strong>
+                        </div>
+
+                        <div class="survey-popup-row">
+                            <span>Kondisi Bangunan</span>
+                            <strong>${attr.kondisi_bangunan ?? "-"}</strong>
+                        </div>
+
+                        <div class="survey-popup-row">
+                            <span>Tanggal Survei</span>
+                            <strong>
+                                ${attr.tanggal_survei
+                                    ? new Date(attr.tanggal_survei)
+                                        .toLocaleDateString("id-ID")
+                                    : "-"}
+                            </strong>
+                        </div>
+
+                        <hr>
+
+                        <h4>Dokumentasi Foto (${attr.objectid})</h4>
+
+                        ${photoHTML}
+
+                    </div>
+                `;
+
+            // Perbarui konten Graphic
+            graphic.popupTemplate = {
+                title: "Detail Survei Bangunan",
+                content: popupHTML
+            };
 
             // Buka popup
             view.popup.open({
@@ -317,6 +415,55 @@
 
         map.add(surveyLayer);
 
+        async function getSurveyPhotos(objectId) {
+            try {
+                const response = await fetch(
+                    `/arcgis/features/survey-points/${objectId}/attachments`
+                );
+
+                if (!response.ok) {
+                    throw new Error("Gagal mengambil foto Survey123");
+                }
+
+                const result = await response.json();
+
+                if (!result.status || !result.attachments?.length) {
+                    return `<div class="survey-no-photo">
+                Belum ada foto dokumentasi.
+            </div>`;
+                }
+
+                return `
+            <div class="survey-photo-grid">
+                ${result.attachments.map(photo => `
+                                <div class="survey-photo-item">
+                                    <a href="${photo.url}" target="_blank" rel="noopener">
+                                        <img
+                                            src="${photo.url}"
+                                            alt="${photo.name}"
+                                            loading="lazy"
+                                        >
+                                    </a>
+                                    <div class="survey-photo-name">
+                                        ${photo.name}
+                                    </div>
+                                </div>
+                            `).join("")}
+            </div>
+        `;
+
+            } catch (error) {
+                console.error("SURVEY PHOTO ERROR:", error);
+
+                return `<div class="survey-no-photo">
+            Foto dokumentasi gagal dimuat.
+        </div>`;
+            }
+        }
+
+        // ==========================================
+        // FORMAT DATA
+        // ==========================================
 
         // Ambil data dari Laravel
         fetch("/arcgis/features/survey-points")
@@ -389,73 +536,75 @@
                     // ==========================================
 
                     const popupContent = `
-    <div class="survey-popup">
+                        <div class="survey-popup">
 
-        <div class="survey-popup-section">
-            <h4>Informasi Bangunan</h4>
+                            <div class="survey-popup-section">
+                                <h4>Informasi Bangunan</h4>
 
-            <div class="survey-popup-row">
-                <span>ID Survey</span>
-                <strong>${escapeHTML(attr.objectid)}</strong>
-            </div>
+                                <div class="survey-popup-row">
+                                    <span>ID Survey</span>
+                                    <strong>${escapeHTML(attr.objectid)}</strong>
+                                </div>
 
-            <div class="survey-popup-row">
-                <span>Jenis Bangunan</span>
-                <strong>${escapeHTML(attr.jenis_bangunan)}</strong>
-            </div>
+                                <div class="survey-popup-row">
+                                    <span>Jenis Bangunan</span>
+                                    <strong>${escapeHTML(attr.jenis_bangunan)}</strong>
+                                </div>
 
-            <div class="survey-popup-row">
-                <span>Tipe Bangunan</span>
-                <strong>${escapeHTML(attr.tipe_bangunan)}</strong>
-            </div>
+                                <div class="survey-popup-row">
+                                    <span>Tipe Bangunan</span>
+                                    <strong>${escapeHTML(attr.tipe_bangunan)}</strong>
+                                </div>
 
-            <div class="survey-popup-row">
-                <span>Fungsi Bangunan</span>
-                <strong>${escapeHTML(attr.fungsi_bangunan)}</strong>
-            </div>
+                                <div class="survey-popup-row">
+                                    <span>Fungsi Bangunan</span>
+                                    <strong>${escapeHTML(attr.fungsi_bangunan)}</strong>
+                                </div>
 
-            <div class="survey-popup-row">
-                <span>Kondisi Bangunan</span>
-                <strong>${escapeHTML(attr.kondisi_bangunan)}</strong>
-            </div>
+                                <div class="survey-popup-row">
+                                    <span>Kondisi Bangunan</span>
+                                    <strong>${escapeHTML(attr.kondisi_bangunan)}</strong>
+                                </div>
 
-            <div class="survey-popup-row">
-                <span>Tanggal Survei</span>
-                <strong>${formatTanggal(attr.tanggal_survei)}</strong>
-            </div>
-        </div>
+                                <div class="survey-popup-row">
+                                    <span>Tanggal Survei</span>
+                                    <strong>${formatTanggal(attr.tanggal_survei)}</strong>
+                                </div>
+                            </div>
 
-        <div class="survey-popup-section">
-            <h4>Informasi Administrasi</h4>
+                            <div class="survey-popup-section">
+                                <h4>Informasi Administrasi</h4>
 
-            <div class="survey-popup-row">
-                <span>Global ID</span>
-                <strong>${escapeHTML(attr.globalid)}</strong>
-            </div>
+                                <div class="survey-popup-row">
+                                    <span>Global ID</span>
+                                    <strong>${escapeHTML(attr.globalid)}</strong>
+                                </div>
 
-            <div class="survey-popup-row">
-                <span>Dibuat Oleh</span>
-                <strong>${escapeHTML(attr.Creator)}</strong>
-            </div>
+                                <div class="survey-popup-row">
+                                    <span>Dibuat Oleh</span>
+                                    <strong>${escapeHTML(attr.Creator)}</strong>
+                                </div>
 
-            <div class="survey-popup-row">
-                <span>Waktu Pembuatan</span>
-                <strong>${formatWaktu(attr.CreationDate)}</strong>
-            </div>
+                                <div class="survey-popup-row">
+                                    <span>Waktu Pembuatan</span>
+                                    <strong>${formatWaktu(attr.CreationDate)}</strong>
+                                </div>
 
-            <div class="survey-popup-row">
-                <span>Diedit Oleh</span>
-                <strong>${escapeHTML(attr.Editor)}</strong>
-            </div>
+                                <div class="survey-popup-row">
+                                    <span>Diedit Oleh</span>
+                                    <strong>${escapeHTML(attr.Editor)}</strong>
+                                </div>
 
-            <div class="survey-popup-row">
-                <span>Waktu Perubahan</span>
-                <strong>${formatWaktu(attr.EditDate)}</strong>
-            </div>
-        </div>
+                                <div class="survey-popup-row">
+                                    <span>Waktu Perubahan</span>
+                                    <strong>${formatWaktu(attr.EditDate)}</strong>
+                                </div>
+                            </div>
 
-    </div>
-`;
+                        </div>
+                    `;
+
+
 
                     // ==========================================
                     // CREATE GRAPHIC

@@ -41,5 +41,7 @@ return [
         'redirect_uri' => env('ARCGIS_REDIRECT_URI'),
         'portal' => env('ARCGIS_PORTAL'),
         'feature_layer_url' => env('ARCGIS_FEATURE_LAYER_URL'),
+        'layer_id' => env('ARCGIS_LAYER_ID', 0),
+        'token' => env('ARCGIS_TOKEN'),
     ],
 ];

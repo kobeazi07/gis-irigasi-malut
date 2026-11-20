@@ -13,9 +13,19 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 use App\Models\ArcGISConnection;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+use App\Services\ArcGIS\Survey123Service;
+use Throwable;
 
 class DashboardController extends Controller
 {
+    protected Survey123Service $service;
+
+    public function __construct(Survey123Service $service)
+    {
+        $this->service = $service;
+    }
     public function index()
     {
         return view('dashboard.pages.dashboard');
@@ -422,19 +432,171 @@ class DashboardController extends Controller
             ], 401);
         }
 
-        $url = config('services.arcgis.feature_layer_url')
-            . '/0/'
-            . $objectId
-            . '/attachments';
+        $url = rtrim(config('services.arcgis.feature_layer_url'), '/')
+            . '/0/' . $objectId . '/attachments';
 
-        $response = Http::get($url, [
+        $response = Http::timeout(20)->get($url, [
             'f' => 'json',
-            'token' => $token,
+            'token' => $token
         ]);
 
-        return response()->json(
-            $response->json(),
-            $response->status()
-        );
+        if (!$response->successful()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Gagal mengambil attachment ArcGIS.'
+            ], $response->status());
+        }
+
+        $data = $response->json();
+
+        $attachments = collect($data['attachmentInfos'] ?? [])
+            ->map(function ($attachment) use ($objectId) {
+                return [
+                    'id' => $attachment['id'],
+                    'name' => $attachment['name'] ?? 'Foto Survey',
+                    'contentType' => $attachment['contentType'] ?? null,
+                    'size' => $attachment['size'] ?? null,
+                    'url' => url(
+                        "/arcgis/features/survey-points/{$objectId}/attachments/{$attachment['id']}/image"
+                    )
+                ];
+            })
+            ->values();
+
+        return response()->json([
+            'status' => true,
+            'objectid' => $objectId,
+            'total' => $attachments->count(),
+            'attachments' => $attachments
+        ]);
+    }
+
+    public function surveyAttachmentImage($objectId, $attachmentId)
+    {
+        $token = $this->getSharedArcGISAccessToken();
+
+        if (!$token) {
+            return response('Token ArcGIS tidak tersedia.', 401);
+        }
+
+        $url = rtrim(config('services.arcgis.feature_layer_url'), '/')
+            . '/0/' . $objectId
+            . '/attachments/' . $attachmentId;
+
+        $response = Http::timeout(30)->get($url, [
+            'token' => $token
+        ]);
+
+        if (!$response->successful()) {
+            return response('Foto tidak dapat diambil.', $response->status());
+        }
+
+        $contentType = $response->header('Content-Type')
+            ?? 'application/octet-stream';
+
+        return response($response->body(), 200)
+            ->header('Content-Type', $contentType)
+            ->header('Cache-Control', 'private, max-age=300');
+    }
+
+
+
+    // survey
+    public function indexsurvey()
+    {
+        try {
+
+            $result = app(Survey123Service::class)->getSurveys();
+
+            $surveys = $result['features'] ?? [];
+
+            return view('dashboard.pages.survey.index', compact('surveys'));
+        } catch (Throwable $e) {
+
+            Log::error('Gagal mengambil data Survey123', [
+                'message' => $e->getMessage()
+            ]);
+
+            return view('dashboard.pages.survey.index', [
+                'surveys' => [],
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function haltambahsurvey()
+    {
+        return view('dashboard.pages.survey.tambah');
+    }
+
+    public function storesurvey(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'jenis_bangunan' => 'required|string',
+            'tipe_bangunan' => 'required|string|max:255',
+            'fungsi_bangunan' => 'required|string',
+            'kondisi_bangunan' => 'required|string',
+            'tanggal_survei' => 'required|date',
+
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
+        ]);
+
+        if ($validator->fails()) {
+            return back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        try {
+
+            // 1. Siapkan atribut
+            $attributes = [
+                'jenis_bangunan' => $request->jenis_bangunan,
+                'tipe_bangunan' => $request->tipe_bangunan,
+                'fungsi_bangunan' => $request->fungsi_bangunan,
+                'kondisi_bangunan' => $request->kondisi_bangunan,
+
+                'tanggal_survei' => Carbon::parse(
+                    $request->tanggal_survei
+                )->startOfDay()->timestamp * 1000,
+            ];
+
+            // 2. Siapkan geometry Point
+            $geometry = [
+                'x' => (float) $request->longitude,
+                'y' => (float) $request->latitude,
+                'spatialReference' => [
+                    'wkid' => 4326,
+                ],
+            ];
+
+            // 3. Submit langsung ke ArcGIS
+            $result = $this->service->createSurvey(
+                $attributes,
+                $geometry
+            );
+
+            // 4. Redirect setelah berhasil
+            return back()->with(
+                'success',
+                'Data survei berhasil dikirim ke ArcGIS. Object ID: '
+                    . $result['objectId']
+            );
+        } catch (Throwable $e) {
+
+            Log::error('ArcGIS Survey Submit Error', [
+                'message' => $e->getMessage(),
+            ]);
+
+            return back()
+                ->withInput()
+                ->with(
+                    'error',
+                    'Gagal mengirim survei ke ArcGIS: '
+                        . $e->getMessage()
+                );
+        }
     }
 }
